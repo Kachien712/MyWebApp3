@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp3.Data;
 using MyWebApp3.Models;
+using MyWebApp3.ViewModels;
 
 namespace MyWebApp3.Controllers
 {
@@ -54,15 +55,22 @@ namespace MyWebApp3.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Author,YearPublished")] Book book)
+        public async Task<IActionResult> Create(BookCreateViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(book);
+                Book newBook = new Book
+                {
+                    Title = viewModel.Title,
+                    Author = viewModel.Author,
+                    YearPublished = viewModel.YearPublished,
+                };
+                _context.Add(newBook);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+
+            return View(viewModel);
         }
 
         // GET: Book/Edit/5
