@@ -86,7 +86,16 @@ namespace MyWebApp3.Controllers
             {
                 return NotFound();
             }
-            return View(book);
+
+            var viewModel = new BookEditViewModel
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                YearPublished = book.YearPublished,
+            };
+
+            return View(viewModel);
         }
 
         // POST: Book/Edit/5
@@ -94,9 +103,9 @@ namespace MyWebApp3.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,YearPublished")] Book book)
+        public async Task<IActionResult> Edit(int id, BookEditViewModel viewModel)
         {
-            if (id != book.Id)
+            if (id != viewModel.Id)
             {
                 return NotFound();
             }
@@ -105,12 +114,20 @@ namespace MyWebApp3.Controllers
             {
                 try
                 {
-                    _context.Update(book);
+                    var bookToUpdate = await _context.Books.FindAsync(viewModel.Id);
+                    if (bookToUpdate == null)
+                    {
+                        return NotFound();
+                    }
+                    bookToUpdate.Title = viewModel.Title;
+                    bookToUpdate.Author = viewModel.Author;
+                    bookToUpdate.YearPublished = viewModel.YearPublished;
+                    _context.Update(bookToUpdate);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BookExists(book.Id))
+                    if (!BookExists(viewModel.Id))
                     {
                         return NotFound();
                     }
@@ -121,7 +138,7 @@ namespace MyWebApp3.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            return View(viewModel);
         }
 
         // GET: Book/Delete/5
@@ -139,7 +156,15 @@ namespace MyWebApp3.Controllers
                 return NotFound();
             }
 
-            return View(book);
+            var viewModel = new BookDeleteViewModel
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                YearPublished = book.YearPublished,
+            };
+
+            return View(viewModel);
         }
 
         // POST: Book/Delete/5
